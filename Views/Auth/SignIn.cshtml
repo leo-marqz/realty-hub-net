@@ -1,0 +1,56 @@
+
+@using RealtyHub.Models.Forms;
+@model SignInForm;
+
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Iniciar sesión";
+}
+
+<!--
+    HEADER 
+ -->
+<div class='py-10'>
+    <h1 class="text-4xl my-10 font-extrabold text-center">
+        Realty <span class="font-normal">Hub</span> 
+    </h1>
+    <h2 class="text-center text-2xl font-extrabold">@ViewData["Title"]</h2>
+</div>
+
+<!--
+    FORM 
+ -->
+ <div class="mt-8 mx-auto max-w-md">
+    <div class="bg-white py-8 px-4 shadow">
+        <form action="#" class="space-y-5">
+            
+            <div asp-validation-summary="ModelOnly" class="bg-red-100 text-red-700 p-3 rounded mb-4"></div>
+
+            @* CSRF -> This is a security feature to prevent CSRF attacks *@
+            @Html.AntiForgeryToken()
+
+            <div>
+                <label for="email" class="block text-sm uppercase text-gray-600 mb-2 font-bold">Email</label>
+                <input type="email" name="email" id="email" placeholder="Ingresa tu email" class="w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400" />
+            </div>
+            <div>
+                <label for="password" class="block text-sm uppercase text-gray-600 mb-2 font-bold">Contraseña</label>
+                <input type="password" name="password" id="password" placeholder="Ingresa tu contraseña" class="w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400" />
+            </div>
+
+            <div>
+                <label for="remember" class="flex items-center">
+                    <input type="checkbox" name="remember" id="remember" class="mr-2" />
+                    <span class="text-sm text-gray-600">Recuérdame</span>
+                </label>
+            </div>
+
+            <input type="submit" value="Iniciar Session" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-md cursor-pointer" />
+
+            <div class="flex items-center justify-between">
+                <a href="/auth/signup" class="text-gray-500 text-xs hover:text-gray-700 ">¿No tienes cuenta? Registrate</a>
+                <a href="/auth/forgot-password" class="text-gray-500 text-xs hover:text-gray-700">¿Olvidaste tu contraseña?</a>
+            </div>
+        </form>
+    </div>
+ </div>

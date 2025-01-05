@@ -1,0 +1,39 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Logs
+logs/
+*.log
+logs/*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+
+# Optional npm cache directory
+.npm
+
+# IDEs
+.vscode/
+.idea/
+
+# Coverage directories
+coverage/
+nyc_output/
+
+#others
+dist/
+public/uploads/images/
+
+#.NET
+bin/
+obj/
+appsettings.json
