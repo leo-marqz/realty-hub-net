@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using RealtyHub.Database;
+
 namespace RealtyHub;
 
 public class Program
@@ -11,9 +14,14 @@ public class Program
         //==============================================================================
 
         builder.Services.AddControllersWithViews();
-
         builder.Services.AddRouting(options => options.LowercaseUrls = true);
+        builder.Services.AddDbContext<RealtyHubDbContext>(options =>
+        {
+            options.UseSqlServer( builder.Configuration.GetConnectionString("DefaultConnection") );
+        });
 
+
+        
         var app = builder.Build();
 
         //==============================================================================
