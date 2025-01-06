@@ -92,7 +92,7 @@ namespace RealtyHub.Controllers
                 return RedirectToAction("Index", "Property");
             }
 
-            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            ModelState.AddModelError(string.Empty, "Intento de inicio de sesión no válido.");
 
             return View(model);
         }
