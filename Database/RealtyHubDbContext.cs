@@ -7,7 +7,7 @@ namespace RealtyHub.Database
 {
     public class RealtyHubDbContext : IdentityDbContext<User>
     {
-        public RealtyHubDbContext(DbContextOptions options) 
+        public RealtyHubDbContext(DbContextOptions<RealtyHubDbContext> options) 
         : base(options)
         {
         }

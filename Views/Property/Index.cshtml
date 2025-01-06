@@ -1,7 +1,6 @@
-
 @{
     Layout = "_MainLayout";
-    ViewData["Title"] = "Publicar Propiedad";
+    ViewData["Title"] = "Mis Propiedades";
 }
 
 <!--
@@ -13,3 +12,11 @@
     </h1>
     <h2 class="text-center text-2xl font-extrabold">@ViewData["Title"]</h2>
 </div>
+
+<a 
+    asp-controller="Property" 
+    asp-action="Create" 
+    class="rounded py-2 px-10 bg-gray-800 hover:bg-gray-900 text-sm font-bold text-center text-white uppercase my-5 inline-block w-full md:w-auto"
+>
+    Publicar Propiedad
+</a>

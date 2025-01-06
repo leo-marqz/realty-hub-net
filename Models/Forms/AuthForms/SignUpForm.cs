@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace RealtyHub.Models.Forms
+namespace RealtyHub.Models.Forms.AuthForms
 {
     public class SignUpForm
     {

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RealtyHub.Models.Forms
+namespace RealtyHub.Models.Forms.AuthForms
 {
     public class ForgotPasswordForm
     {

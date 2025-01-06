@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RealtyHub.Database;
+using RealtyHub.Models;
 
 namespace RealtyHub;
 
@@ -21,8 +22,8 @@ public class Program
             options.UseSqlServer( builder.Configuration.GetConnectionString("DefaultConnection") );
         });
 
-        //Setup Identity
-        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+        //Setup Identity: User -> IdentityUser
+        builder.Services.AddIdentity<User, IdentityRole>(options =>
         {
             // options.Password.RequireDigit = true;
             // options.Password.RequireLowercase = true;
@@ -30,7 +31,9 @@ public class Program
             // options.Password.RequireNonAlphanumeric = true;
             // options.Password.RequiredLength = 8;
             // options.SignIn.RequireConfirmedEmail = true;
-        }).AddEntityFrameworkStores<RealtyHubDbContext>(); // Add Identity to the project
+        })  
+        .AddEntityFrameworkStores<RealtyHubDbContext>() // Add Identity to the project
+        .AddDefaultTokenProviders(); // Add token provider for password reset
         
         var app = builder.Build();
 
@@ -51,7 +54,7 @@ public class Program
 
         app.MapControllerRoute(
             name: "default",
-            pattern: "{controller=Home}/{action=Index}/{id?}");
+            pattern: "{controller=Property}/{action=Index}/{id?}");
 
         app.Run();
     }

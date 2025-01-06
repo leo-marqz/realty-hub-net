@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace RealtyHub.Controllers
 {
-    [Route("[controller]")]
+    [Route("properties")]
     public class PropertyController : Controller
     {
         private readonly ILogger<PropertyController> _logger;
@@ -18,7 +14,16 @@ namespace RealtyHub.Controllers
             _logger = logger;
         }
 
+        [HttpGet]
+        [Authorize]
         public IActionResult Index()
+        {
+            return View();
+        }
+
+        [HttpGet("create")]
+        [Authorize]
+        public IActionResult Create()
         {
             return View();
         }

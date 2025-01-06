@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using RealtyHub.Models.Forms;
+using RealtyHub.Extensions;
+using RealtyHub.Models;
+using RealtyHub.Models.Forms.AuthForms;
 
 namespace RealtyHub.Controllers
 {
@@ -8,9 +11,13 @@ namespace RealtyHub.Controllers
     {
         // This is a logger that will be used to log information
         private readonly ILogger<AuthController> _logger;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
 
-        public AuthController(ILogger<AuthController> logger)
+        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, ILogger<AuthController> logger)
         {
+            _userManager = userManager;
+            _signInManager = signInManager;
             _logger = logger; 
         }
 
@@ -19,19 +26,34 @@ namespace RealtyHub.Controllers
         [HttpGet("signup")] // This is the route for the SignUp page
         public IActionResult SignUp()
         {
-            return View();
+            return View( new SignUpForm() );
         }
 
         [HttpPost("signup")]
         [ValidateAntiForgeryToken] // This is a security feature to prevent CSRF attacks
-        public IActionResult SignUp([FromForm] SignUpForm model)
+        public async Task<IActionResult> SignUp([FromForm] SignUpForm model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            return Ok();
+            var usr = new User {
+                Name = model.Name,
+                UserName = model.Email,
+                Email = model.Email
+            };
+
+            IdentityResult response = await _userManager.CreateAsync(usr, model.Password);
+
+            if(response.Succeeded){
+                await _signInManager.SignInAsync(usr, isPersistent: false);
+                return RedirectToAction("Index", "Property");
+            }
+
+            response.handleIdentityErrors();
+
+            return View(model);
         }
 
         #endregion
@@ -51,14 +73,28 @@ namespace RealtyHub.Controllers
         [HttpGet("signin")]
         public IActionResult SignIn()
         {
-            return View();
+            return View( new SignInForm() );
         }
 
         [HttpPost("signin")]
         [ValidateAntiForgeryToken]
-        public IActionResult SignIn(string model)
+        public async Task<IActionResult> SignIn([FromForm] SignInForm model)
         {
-            return Ok();
+            if(!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var response = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+
+            if(response.Succeeded)
+            {
+                return RedirectToAction("Index", "Property");
+            }
+
+            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+
+            return View(model);
         }
 
         #endregion
@@ -93,14 +129,23 @@ namespace RealtyHub.Controllers
         #region ResetPassword
 
         [HttpGet("reset-password")]
-        public IActionResult ResetPassword()
+        public IActionResult ResetPassword([FromQuery] string code)
         {
-            return View();
+            if (code == null)
+            {
+                return BadRequest();
+            }
+
+            var model = new ResetPasswordForm
+            {
+                Code = code
+            };
+            return View(model);
         }
 
         [HttpPost("reset-password")]
         [ValidateAntiForgeryToken]
-        public IActionResult ResetPassword(string model)
+        public IActionResult ResetPassword([FromForm] ResetPasswordForm model)
         {
             return Ok();
         }
