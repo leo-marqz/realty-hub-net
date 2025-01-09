@@ -1,4 +1,6 @@
 
+using System;
+
 namespace RealtyHub.Models
 {
     public abstract class Entity

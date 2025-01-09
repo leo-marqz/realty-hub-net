@@ -1,5 +1,9 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using RealtyHub.Database;
 using RealtyHub.Models;
 
@@ -35,6 +39,13 @@ public class Program
         .AddEntityFrameworkStores<RealtyHubDbContext>() // Add Identity to the project
         .AddDefaultTokenProviders(); // Add token provider for password reset
         
+        //return url
+        builder.Services.ConfigureApplicationCookie(options =>
+        {
+            options.LoginPath = "/auth/signin";
+            options.AccessDeniedPath = "/auth/accessdenied";
+        });
+
         var app = builder.Build();
 
         //==============================================================================
@@ -54,7 +65,7 @@ public class Program
 
         app.MapControllerRoute(
             name: "default",
-            pattern: "{controller=Property}/{action=Index}/{id?}");
+            pattern: "{controller=Home}/{action=Index}/{id?}");
 
         app.Run();
     }

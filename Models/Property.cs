@@ -1,4 +1,6 @@
 
+using System;
+
 namespace RealtyHub.Models
 {
     public class Property : Entity
@@ -6,12 +8,12 @@ namespace RealtyHub.Models
         /// <summary>
         /// The title of the property
         /// </summary>
-        public string? Title { get; set; }
+        public string Title { get; set; }
 
         /// <summary>
         /// The description of the property
         /// </summary>
-        public string? Description { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
         /// The number of rooms in the property
@@ -31,7 +33,7 @@ namespace RealtyHub.Models
         /// <summary>
         /// Street name of the property
         /// </summary>
-        public string? Street { get; set; }
+        public string Street { get; set; }
 
         /// <summary>
         /// The city where the property is located - Latitude (map)
@@ -46,7 +48,7 @@ namespace RealtyHub.Models
         /// <summary>
         /// Property image
         /// </summary>
-        public string? Image { get; set; }
+        public string Image { get; set; }
 
         /// <summary>
         /// The property has been published ?

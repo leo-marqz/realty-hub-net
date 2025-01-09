@@ -6,6 +6,6 @@ namespace RealtyHub.Models
         /// <summary>
         /// The name of the category
         /// </summary>
-        public string? Name { get; set; }
+        public string Name { get; set; }
     }
 }
