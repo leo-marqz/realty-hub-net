@@ -14,4 +14,6 @@ namespace RealtyHub.Services.Storage
         Task<bool> DeleteAsync(string path);
         Task<string>UpdatedAsync(string path, Stream stream);
     }
+
+    
 }

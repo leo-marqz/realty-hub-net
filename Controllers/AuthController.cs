@@ -37,7 +37,8 @@ namespace RealtyHub.Controllers
         [ValidateAntiForgeryToken] // This is a security feature to prevent CSRF attacks
         public async Task<IActionResult> SignUp([FromForm] SignUpForm model, string returnUrl = null)
         {
-            ViewData["ReturnUrl"] = returnUrl ?? Url.Content("~/");
+            ViewData["ReturnUrl"] = returnUrl;
+            // returnUrl = returnUrl ?? Url.Content("~/");
 
             if (!ModelState.IsValid)
             {
@@ -60,7 +61,7 @@ namespace RealtyHub.Controllers
                 return RedirectToAction("Index", "Property");
             }
 
-            response.handleIdentityErrors();
+            response.handleIdentityErrors(ModelState);
 
             return View(model);
         }
@@ -91,6 +92,7 @@ namespace RealtyHub.Controllers
         public async Task<IActionResult> SignIn([FromForm] SignInForm model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
+            // returnUrl = returnUrl ?? Url.Content("~/");
 
             if(!ModelState.IsValid)
             {
@@ -101,7 +103,7 @@ namespace RealtyHub.Controllers
                     userName: model.Email, 
                     password: model.Password, 
                     isPersistent: model.RememberMe, 
-                    lockoutOnFailure: false
+                    lockoutOnFailure: true
                 );
 
             if(response.Succeeded)
@@ -112,9 +114,13 @@ namespace RealtyHub.Controllers
                 }
                 // Protect from open redirect attacks
                 return LocalRedirect(returnUrl);
-            }
 
-            ModelState.AddModelError(string.Empty, "Intento de inicio de sesión no válido.");
+            }else if(response.IsLockedOut)
+            {
+                ModelState.AddModelError(string.Empty, "Cuenta bloqueada por intentos fallidos.");
+            }else{
+                ModelState.AddModelError(string.Empty, "Intento de inicio de sesión no válido.");
+            }
 
             return View(model);
         }
@@ -125,7 +131,7 @@ namespace RealtyHub.Controllers
 
         [HttpPost("signout")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SignOut()
+        public async Task<IActionResult> SignOut([FromForm] object model)
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("SignIn", "Auth");

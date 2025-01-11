@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -27,23 +28,32 @@ public class Program
         });
 
         //Setup Identity: User -> IdentityUser
-        builder.Services.AddIdentity<User, IdentityRole>(options =>
-        {
-            // options.Password.RequireDigit = true;
-            // options.Password.RequireLowercase = true;
-            // options.Password.RequireUppercase = true;
-            // options.Password.RequireNonAlphanumeric = true;
-            // options.Password.RequiredLength = 8;
-            // options.SignIn.RequireConfirmedEmail = true;
-        })  
-        .AddEntityFrameworkStores<RealtyHubDbContext>() // Add Identity to the project
-        .AddDefaultTokenProviders(); // Add token provider for password reset
+        builder.Services.AddIdentity<User, IdentityRole>() 
+            .AddEntityFrameworkStores<RealtyHubDbContext>();
         
         //return url
         builder.Services.ConfigureApplicationCookie(options =>
         {
             options.LoginPath = "/auth/signin";
             options.AccessDeniedPath = "/auth/accessdenied";
+        });
+
+        builder.Services.Configure<IdentityOptions>((options) =>
+        {
+            options.SignIn.RequireConfirmedEmail = false;
+            options.SignIn.RequireConfirmedAccount = false;
+            options.SignIn.RequireConfirmedPhoneNumber = false;
+
+            options.User.RequireUniqueEmail = true;
+
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequireNonAlphanumeric = true;
+            options.Password.RequiredLength = 8;
+            
+            options.Lockout.MaxFailedAccessAttempts = 3;
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
         });
 
         var app = builder.Build();
