@@ -182,6 +182,16 @@ namespace RealtyHub.Controllers
 
         #endregion
 
+        #region AccessDenied
+
+        [HttpGet("access-denied")]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        #endregion
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

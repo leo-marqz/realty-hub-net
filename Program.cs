@@ -35,7 +35,7 @@ public class Program
         builder.Services.ConfigureApplicationCookie(options =>
         {
             options.LoginPath = "/auth/signin";
-            options.AccessDeniedPath = "/auth/accessdenied";
+            options.AccessDeniedPath = "/auth/access-denied";
         });
 
         builder.Services.Configure<IdentityOptions>((options) =>
