@@ -243,9 +243,41 @@ namespace RealtyHub.Controllers
 
         [HttpPost("reset-password")]
         [ValidateAntiForgeryToken]
-        public IActionResult ResetPassword([FromForm] ResetPasswordForm model)
+        public async Task<ActionResult> ResetPassword([FromForm] ResetPasswordForm model)
         {
-            return Ok();
+            if(!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var usr = await _userManager.FindByEmailAsync(model.Email);
+
+            if(usr == null)
+            {
+                ModelState.AddModelError(string.Empty, "User not found.");
+                return View(model);
+            }
+
+            var response = await _userManager.ResetPasswordAsync(
+                user: usr, 
+                token: model.Code, // token for password reset (code)
+                newPassword: model.Password
+            );
+
+            if(response.Succeeded)
+            {
+                return RedirectToAction("ResetPasswordConfirmation");
+            }
+
+            response.handleIdentityErrors(ModelState);
+
+            return View(model);
+        }
+
+        [HttpGet("reset-password-confirmation")]
+        public IActionResult ResetPasswordConfirmation()
+        {
+            return View();
         }
 
         #endregion
