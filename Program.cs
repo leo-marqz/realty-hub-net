@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RealtyHub.Database;
 using RealtyHub.Models;
+using RealtyHub.Services.Email;
 
 namespace RealtyHub;
 
@@ -29,7 +30,8 @@ public class Program
 
         //Setup Identity: User -> IdentityUser
         builder.Services.AddIdentity<User, IdentityRole>() 
-            .AddEntityFrameworkStores<RealtyHubDbContext>();
+            .AddEntityFrameworkStores<RealtyHubDbContext>()
+            .AddDefaultTokenProviders();
         
         //return url
         builder.Services.ConfigureApplicationCookie(options =>
@@ -55,6 +57,9 @@ public class Program
             options.Lockout.MaxFailedAccessAttempts = 3;
             options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
         });
+
+        //Email service
+        builder.Services.AddTransient<IEmailService, EmailService>();
 
         var app = builder.Build();
 

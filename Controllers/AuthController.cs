@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using RealtyHub.Extensions;
 using RealtyHub.Models;
 using RealtyHub.Models.Forms.AuthForms;
+using RealtyHub.Services.Email;
 
 namespace RealtyHub.Controllers
 {
@@ -16,12 +17,17 @@ namespace RealtyHub.Controllers
         private readonly ILogger<AuthController> _logger;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly IEmailService _emailService;
 
-        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, ILogger<AuthController> logger)
+        public AuthController(
+            UserManager<User> userManager, SignInManager<User> signInManager, 
+            ILogger<AuthController> logger, IEmailService emailService
+        )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger; 
+            _emailService = emailService;
         }
 
         #region  SignUp
@@ -42,6 +48,8 @@ namespace RealtyHub.Controllers
 
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Invalid registration attempt.");
+
                 return View(model);
             }
 
@@ -57,7 +65,9 @@ namespace RealtyHub.Controllers
                 if(returnUrl.IsNullOrEmpty()){
                     return LocalRedirect(returnUrl);
                 }
+
                 await _signInManager.SignInAsync(usr, isPersistent: false);
+
                 return RedirectToAction("Index", "Property");
             }
 
@@ -96,6 +106,8 @@ namespace RealtyHub.Controllers
 
             if(!ModelState.IsValid)
             {
+                _logger.LogWarning("Invalid login attempt.");
+
                 return View(model);
             }
 
@@ -117,8 +129,10 @@ namespace RealtyHub.Controllers
 
             }else if(response.IsLockedOut)
             {
+                _logger.LogWarning("User account locked out.");
                 ModelState.AddModelError(string.Empty, "Cuenta bloqueada por intentos fallidos.");
             }else{
+                _logger.LogWarning("Invalid login attempt.");
                 ModelState.AddModelError(string.Empty, "Intento de inicio de sesión no válido.");
             }
 
@@ -134,6 +148,9 @@ namespace RealtyHub.Controllers
         public async Task<IActionResult> SignOut([FromForm] object model)
         {
             await _signInManager.SignOutAsync();
+            
+            _logger.LogInformation("User signed out.");
+
             return RedirectToAction("SignIn", "Auth");
         }
 
@@ -144,14 +161,55 @@ namespace RealtyHub.Controllers
         [HttpGet("forgot-password")]
         public IActionResult ForgotPassword()
         {
-            return View();
+            _logger.LogInformation("Forgot password page requested.");
+
+            return View( new ForgotPasswordForm() );
         }
 
         [HttpPost("forgot-password")]
         [ValidateAntiForgeryToken]
-        public IActionResult ForgotPassword(string model)
+        public async Task<ActionResult> ForgotPassword([FromForm] ForgotPasswordForm model)
         {
-            return Ok();
+            if(!ModelState.IsValid)
+            {
+                _logger.LogWarning("Email is required to reset password.");
+
+                return View(model);
+            }
+
+            var usr = await _userManager.FindByEmailAsync( model.Email );
+
+            if(usr == null)
+            {
+                _logger.LogWarning("User not found.");
+
+                ModelState.AddModelError(string.Empty, "No se encontró el usuario.");
+
+                return View(model);
+            }
+
+            var code = await _userManager.GeneratePasswordResetTokenAsync(usr);
+
+            // url to reset password
+            var callbackUrl = Url.Action(
+                action: "ResetPassword", 
+                controller: "Auth",
+                values: new {
+                    userId = usr.Id,
+                    code = code
+                }, 
+                protocol: HttpContext.Request.Scheme
+            );
+
+            await _emailService.SendPasswordResetAsync(usr.Email, callbackUrl);
+           
+            return RedirectToAction("ForgotPasswordConfirmation");
+        }
+
+        [HttpGet("forgot-password-confirmation")]
+        public IActionResult ForgotPasswordConfirmation()
+        {
+            return View();
         }
 
         #endregion
@@ -159,18 +217,28 @@ namespace RealtyHub.Controllers
         #region ResetPassword
 
         [HttpGet("reset-password")]
-        public IActionResult ResetPassword([FromQuery] string code)
+        public async Task<ActionResult> ResetPassword([FromQuery] string userId, [FromQuery] string code)
         {
-            if (code == null)
+            if (userId.IsNullOrEmpty() || code.IsNullOrEmpty())
             {
-                return BadRequest();
+                ModelState.AddModelError(string.Empty, "User ID and code are required.");
+                return View( new ResetPasswordForm() );
             }
 
-            var model = new ResetPasswordForm
+            var usr = await _userManager.FindByIdAsync(userId);
+
+            if (usr == null)
             {
+                ModelState.AddModelError(string.Empty, "User not found.");
+                return View( new ResetPasswordForm() );
+            }
+
+            var model = new ResetPasswordForm {
+                Email = usr.Email,
                 Code = code
             };
-            return View(model);
+
+            return View( model );
         }
 
         [HttpPost("reset-password")]
