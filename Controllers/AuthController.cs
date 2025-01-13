@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -62,13 +63,36 @@ namespace RealtyHub.Controllers
             IdentityResult response = await _userManager.CreateAsync(usr, model.Password);
 
             if(response.Succeeded){
-                if(returnUrl.IsNullOrEmpty()){
-                    return LocalRedirect(returnUrl);
-                }
 
-                await _signInManager.SignInAsync(usr, isPersistent: false);
+                _logger.LogInformation("User created a new account with password.");
 
-                return RedirectToAction("Index", "Property");
+                // code to confirm email
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(usr);
+
+                // url to confirm email
+                var callbackUrl = Url.Action(
+                    action: "ConfirmAccount", 
+                    controller: "Auth",
+                    values: new {
+                        userId = usr.Id,
+                        code = code
+                    }, 
+                    protocol: HttpContext.Request.Scheme
+                );
+
+                _logger.LogInformation("Email confirmation link: {0}", callbackUrl);
+
+                // send email confirmation
+                await _emailService.SendEmailConfirmationAsync(usr.Email, callbackUrl);
+
+                // Redirect to the confirmation page
+                return RedirectToAction("SignUpConfirmation");
+
+                // if(returnUrl.IsNullOrEmpty()){
+                //     return LocalRedirect(returnUrl);
+                // }
+                // await _signInManager.SignInAsync(usr, isPersistent: false);
+                // return RedirectToAction("Index", "Property");
             }
 
             response.handleIdentityErrors(ModelState);
@@ -76,12 +100,51 @@ namespace RealtyHub.Controllers
             return View(model);
         }
 
+        [HttpGet("signup-confirmation")]
+        public IActionResult SignUpConfirmation()
+        {
+            return View();
+        }
+
         #endregion
 
         #region ConfirmAccount
 
         [HttpGet("confirm-acount")]
-        public IActionResult ConfirmAccount()
+        [AllowAnonymous]
+        public async Task<ActionResult> ConfirmAccount([FromQuery] string userId, [FromQuery] string code)
+        {
+            if (userId.IsNullOrEmpty() || code.IsNullOrEmpty())
+            {
+                ModelState.AddModelError(string.Empty, "User ID and Code are required.");
+                return View();
+            }
+
+            var usr = await _userManager.FindByIdAsync(userId);
+
+            if (usr == null)
+            {
+                ModelState.AddModelError(string.Empty, "User not found.");
+                return View();
+            }
+
+            var response = await _userManager.ConfirmEmailAsync(
+                    user: usr, 
+                    token: code
+                );
+
+            if(response.Succeeded)
+            {
+                return RedirectToAction("ConfirmAccountConfirmation");
+            }
+
+            response.handleIdentityErrors(ModelState);
+
+            return View();
+        }
+
+        [HttpGet("confirm-account-confirmation")]
+        public IActionResult ConfirmAccountConfirmation()
         {
             return View();
         }

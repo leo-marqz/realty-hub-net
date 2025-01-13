@@ -1,0 +1,29 @@
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Confirma tu cuenta";
+}
+
+<!-- HEADER -->
+<div class='py-10'>
+    <h1 class="text-4xl my-10 font-extrabold text-center">
+        Realty <span class="font-normal">Hub</span> 
+    </h1>
+    <h2 class="text-center text-2xl font-extrabold">
+        @ViewData["Title"]
+    </h2>
+</div>
+
+<!-- CONFIRMATION MESSAGE -->
+<div class="mt-8 mx-auto max-w-md">
+    <div class="bg-white py-8 px-4 shadow text-center">
+        <p class="text-gray-700 text-lg mb-4">
+            Hemos enviado un correo de confirmación a tu dirección de email.
+        </p>
+        <p class="text-gray-600 text-sm mb-6">
+            Por favor, revisa tu bandeja de entrada y haz clic en el enlace para confirmar tu cuenta.
+        </p>
+        <p class="text-gray-600 text-sm mb-6">
+            Si no ves el correo, verifica en la carpeta de spam o correo no deseado.
+        </p>
+    </div>
+</div>

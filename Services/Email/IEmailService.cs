@@ -9,5 +9,6 @@ namespace RealtyHub.Services.Email
     {
         Task SendAsync(string from, string to, string subject, string body, bool isHtml = false);  
         Task SendPasswordResetAsync(string to, string callbackUrl);
+        Task SendEmailConfirmationAsync(string to, string callbackUrl);
     }
 }

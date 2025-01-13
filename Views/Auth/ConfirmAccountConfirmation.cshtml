@@ -1,0 +1,29 @@
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Cuenta Confirmada";
+}
+
+<!-- HEADER -->
+<div class='py-10'>
+    <h1 class="text-4xl my-10 font-extrabold text-center">
+        Realty <span class="font-normal">Hub</span> 
+    </h1>
+    <h2 class="text-center text-2xl font-extrabold">
+        @ViewData["Title"]
+    </h2>
+</div>
+
+<!-- CONFIRMATION MESSAGE -->
+<div class="mt-8 mx-auto max-w-md">
+    <div class="bg-white py-8 px-4 shadow text-center">
+        <p class="text-gray-700 text-lg mb-4">
+            Tu cuenta ha sido confirmada exitosamente.
+        </p>
+        <p class="text-gray-600 text-sm mb-6">
+            Ahora puedes iniciar sesión y disfrutar de todos nuestros servicios.
+        </p>
+        <a href="/auth/signin" class="inline-block bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-md cursor-pointer">
+            Ir al inicio de sesión
+        </a>
+    </div>
+</div>

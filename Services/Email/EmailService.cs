@@ -60,6 +60,77 @@ namespace RealtyHub.Services.Email
 
         }
 
+        public async Task SendEmailConfirmationAsync(string to, string callbackUrl)
+        {
+            StringBuilder body = new StringBuilder();
+            body.Append("<!DOCTYPE html>");
+            body.Append("<html lang='en'>");
+            body.Append(@"<head>
+                            <meta charset='UTF-8'>
+                            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                            <title>Confirm Your Account</title>
+                            <style>
+                                body {
+                                    font-family: Arial, sans-serif; background-color: #f4f4f9;
+                                    margin: 0; padding: 0; color: #333;
+                                }
+                                .email-container {
+                                    max-width: 600px; margin: 20px auto;
+                                    background-color: #ffffff; border-radius: 10px;
+                                    overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                                    border: 1px solid #eaeaea;
+                                }
+                                .header { background-color: #2d3748; color: #ffffff; text-align: center; padding: 20px; }
+                                .header h1 { margin: 0; font-size: 28px; font-weight: 700; }
+                                .header span { font-weight: 400; color: #a0aec0; }
+                                .body { padding: 20px; text-align: center; }
+                                .body p { line-height: 1.8; font-size: 16px; margin-bottom: 20px; }
+                                .button {
+                                    display: inline-block; background-color: #4caf50;
+                                    color: #ffffff; text-decoration: none; padding: 10px 20px;
+                                    border-radius: 5px; font-weight: bold; font-size: 16px;
+                                }
+                                .button:hover { background-color: #3e8e41; }
+                                .footer {
+                                    background-color: #edf2f7;
+                                    text-align: center;
+                                    padding: 15px;
+                                    font-size: 12px;
+                                    color: #718096;
+                                }
+                                .footer a { color: #4caf50; text-decoration: none; }
+                                .footer a:hover { text-decoration: underline; }
+                            </style>
+                        </head>");
+            body.Append("<body>");
+            body.Append("<div class='email-container'>");
+            body.Append("<div class='header'>");
+            body.Append("<h1>Welcome to Realty <span>Hub</span></h1>");
+            body.Append("</div>");
+            body.Append("<div class='body'>");
+            body.Append("<p>Hello,</p>");
+            body.Append("<p>Thank you for creating an account with Realty Hub. Please confirm your email address by clicking the button below:</p>");
+            body.Append($"<a href='{callbackUrl}' class='button'>Confirm Account</a>");
+            body.Append("<p>If you didn’t create an account, you can safely ignore this email.</p>");
+            body.Append("<p>Thank you,<br>The Realty Hub Team</p>");
+            body.Append("</div>");
+            body.Append("<div class='footer'>");
+            body.Append("<p>Having trouble with the button? Copy and paste the following URL into your browser:</p>");
+            body.Append($"<p><a href='{callbackUrl}'>{callbackUrl}</a></p>");
+            body.Append("</div>");
+            body.Append("</div>");
+            body.Append("</body>");
+            body.Append("</html>");
+
+            await SendAsync(
+                from: "no-repply@realtyhub.com",
+                to: to,
+                subject: "Confirm Your Account - Realty Hub",
+                body: body.ToString(),
+                isHtml: true
+            );
+        }
+
         public async Task SendPasswordResetAsync(string to, string callbackUrl)
         {
             StringBuilder body = new StringBuilder();
