@@ -43,7 +43,7 @@ public class Program
         builder.Services.Configure<IdentityOptions>((options) =>
         {
             options.SignIn.RequireConfirmedEmail = false;
-            options.SignIn.RequireConfirmedAccount = false;
+            options.SignIn.RequireConfirmedAccount = true;
             options.SignIn.RequireConfirmedPhoneNumber = false;
 
             options.User.RequireUniqueEmail = true;
