@@ -58,6 +58,24 @@ public class Program
             options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
         });
 
+        //Setup facebook authentication - Not Active
+        builder.Services.AddAuthentication().AddFacebook(options =>
+        {
+            options.AppId = builder.Configuration["Facebook:AppId"];
+            options.AppSecret = builder.Configuration["Facebook:AppSecret"];
+            options.CallbackPath = "/auth/signin-facebook";
+            options.SaveTokens = true;
+        });
+
+        //Setup google authentication
+        // builder.Services.AddAuthentication().AddGoogle(options =>
+        // {
+        //     options.ClientId = builder.Configuration["Google:ClientId"];
+        //     options.ClientSecret = builder.Configuration["Google:ClientSecret"];
+        //     options.CallbackPath = "/auth/signin-google";
+        //     options.SaveTokens = true;
+        // });
+
         //Email service
         builder.Services.AddTransient<IEmailService, EmailService>();
 

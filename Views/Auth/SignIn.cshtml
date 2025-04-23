@@ -2,9 +2,22 @@
 @* @using RealtyHub.Models.Forms; *@
 @model SignInForm;
 
+@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<User> _signInManager;
+
 @{
     Layout = "_AuthLayout";
     ViewData["Title"] = "Iniciar sesión";
+
+    var schemas = await _signInManager.GetExternalAuthenticationSchemesAsync();
+    var providers = schemas.Select((sch)=>{
+        return new {
+            sch.Name,
+            sch.DisplayName,
+            sch.HandlerType
+        };
+    });
+        
 }
 
 <!--
@@ -61,14 +74,26 @@
             <span class="border-b border-gray-300 w-full"></span>
         </div>
 
-        <div class="flex items-center justify-between gap-3">
-            <a href="/auth/google" class="p-2 rounded-sm text-center hover:bg-gray-100">
-                Iniciar con Google <i class="bi bi-google"></i> 
-            </a>
-            <a href="/auth/microsoft" class="p-2 rounded-sm text-center hover:bg-gray-100">
-                Iniciar con Microsoft <i class="bi bi-windows"></i>
-            </a>
-        </div>
+        @if(providers.Count() > 0){
+
+            <div class="flex items-center justify-between gap-3">
+
+                <form asp-controller="Auth" asp-action="ExternalAccess" method="post" asp-route-returnurl="@ViewData["ReturnUrl"]">
+                    @foreach(var provider in providers){
+                        <button type="submit" name="provider" value="@provider.Name" class="p-2 rounded-sm text-center hover:bg-gray-100">
+                            @provider.DisplayName <i class="bi bi-@provider.Name.ToLower()"></i> 
+                        </button>
+                    }
+                </form>
+                
+                @* @if(providers.Select((provider)=>provider.Name == "Microsoft").FirstOrDefault()){
+                    <a href="/auth/microsoft" class="p-2 rounded-sm text-center hover:bg-gray-100">
+                        Iniciar con Microsoft <i class="bi bi-windows"></i>
+                    </a>
+                }  *@
+
+            </div>
+        }
 
     </div>
  </div>

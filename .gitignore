@@ -36,4 +36,4 @@ public/uploads/images/
 #.NET
 bin/
 obj/
-appsettings.json
+# appsettings.json

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using RealtyHub.Extensions;
 using RealtyHub.Models;
+using RealtyHub.Models.Forms.Application;
 using RealtyHub.Models.Forms.AuthForms;
 using RealtyHub.Services.Email;
 
@@ -352,6 +354,73 @@ namespace RealtyHub.Controllers
         {
             return View();
         }
+
+        #endregion
+
+        #region ExternalAccess
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public IActionResult ExternalAccess(string provider, string returnUrl = null)
+        {
+            var redirectUrl = Url.Action(
+                action: "ExternalAccessCallback", 
+                controller: "Auth",
+                values: new { ReturnUrl = returnUrl }
+            );
+
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(
+                provider: provider, 
+                redirectUrl: redirectUrl
+            );
+
+            return Challenge(properties, provider);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ExternalAccessCallback(string returnUrl = null, string error = null){
+            
+            returnUrl = returnUrl ?? Url.Content("~/");
+            
+            if(error != null){
+                ModelState.AddModelError(string.Empty, error);
+                return View(nameof(SignIn), new SignInForm());
+            }
+
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            
+            // Check if the external login info is null
+            if(info == null){
+                return RedirectToAction(nameof(SignIn), new { ReturnUrl = returnUrl });
+            }
+
+            // Check if the user already has an account
+            var result = await _signInManager.ExternalLoginSignInAsync(
+                loginProvider: info.LoginProvider, 
+                providerKey: info.ProviderKey, 
+                isPersistent: false
+            );
+
+            if(result.Succeeded){
+                await _signInManager.UpdateExternalAuthenticationTokensAsync(info);
+                return LocalRedirect(returnUrl);
+            }else{
+                ViewData["ReturnUrl"] = returnUrl;
+                ViewData["LoginProvider"] = info.LoginProvider;
+                
+                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                var name = info.Principal.FindFirstValue(ClaimTypes.Name);
+
+                return View("ConfirmExternalAccess", new ConfirmExternalAccessForm{
+                    Email = email,
+                    Name = name
+                });
+            }
+
+        }
+
 
         #endregion
 
